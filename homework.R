@@ -1,5 +1,5 @@
 #PSYC 259 Homework 2 - Data Transformation
-#For full credit, provide answers for at least 7/10
+#For full credit, provide answers for at least 7/10 (10/10)
 
 #List names of students collaborating with: 
 
@@ -19,6 +19,9 @@ ds <- read_csv("data_raw/rolling_stone_500.csv")
 glimpse(ds$Year)
 ds$Year <- as.numeric(ds$Year)
 typeof(ds$Year)
+
+#Mcomment: Looks good! See an alternative way below - 
+ds <- ds %>% mutate(Year = as.numeric(Year)) 
 
 ### Question 2 ---------- 
 
@@ -72,6 +75,11 @@ latest_year <- ds_sum$latest_year
 avg_year <- round(ds_sum$avg_year)
 ds_filter <- ds %>% filter(year %in% c(earliest_year, latest_year, avg_year)) %>% arrange(year)
 
+#Mcomment: This works, but your summaries already exist in your dataframe, so you could also just include them straight into the filter with an OR function
+ds %>% filter(year == round(ds_sum$min_yr) | 
+                year == round(ds_sum$mean_yr) | 
+                year == round(ds_sum$max_yr) ) %>% arrange(year)
+
 ### Question 8 ---------- 
 
 # There's and error here. The oldest song "Brass in Pocket"
@@ -81,7 +89,10 @@ ds_filter <- ds %>% filter(year %in% c(earliest_year, latest_year, avg_year)) %>
 # find the correct oldest, averag-ist, and most recent songs
 
 #ANSWER
-ds_correct <- ds %>% mutate(year = ifelse( year == 1879, 1979, year))
+ds_correct <- ds %>% mutate(year = ifelse( year == 1879, 1979, year)) #Mcomment: This works, but if you had 2 songs with this year, it would update both
+#MComment: You can also do the ifelse on the Song name, to be more precise
+ds  <- ds %>% mutate(year = ifelse(song == "Brass in Pocket", 1979, year)
+                     
 ds_correct <- ds_correct %>% mutate(decade = ((floor(ds$year/10))*10))
 ds_correct_sum <- ds_correct %>% summarize(earliest_year = min(year, na.rm = TRUE), latest_year = max(year, na.rm = TRUE), avg_year = mean(year, na.rm = TRUE))
 correct_earliest_year <- ds_correct_sum$earliest_year
